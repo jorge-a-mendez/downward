@@ -32,6 +32,19 @@ class Effect:
             print("%sthen" % indent)
             indent += "  "
         print("%s%s" % (indent, self.literal))
+    def dumps(self):
+        result = ""
+        indent = "  "
+        if self.parameters:
+            result += "%sforall %s\n" % (indent, ", ".join(map(str, self.parameters)))
+            indent += "  "
+        if self.condition != conditions.Truth():
+            result += "%sif\n" % indent
+            result += self.condition.dumps(indent + "  ")
+            result += "%sthen\n" % indent
+            indent += "  "
+        result += "%s%s\n" % (indent, self.literal)
+        return result
     def copy(self):
         return Effect(self.parameters, self.condition, self.literal)
     def uniquify_variables(self, type_map):
@@ -104,6 +117,12 @@ class ConditionalEffect:
         self.condition.dump(indent + "  ")
         print("%sthen" % (indent))
         self.effect.dump(indent + "  ")
+    def dumps(self, indent="  "):
+        result = "%sif\n" % (indent)
+        result += self.condition.dumps(indent + "  ")
+        result += "%sthen\n" % (indent)
+        result += self.effect.dumps(indent + "  ")
+        return result
     def normalize(self):
         norm_effect = self.effect.normalize()
         if isinstance(norm_effect, ConjunctiveEffect):
@@ -132,6 +151,10 @@ class UniversalEffect:
     def dump(self, indent="  "):
         print("%sforall %s" % (indent, ", ".join(map(str, self.parameters))))
         self.effect.dump(indent + "  ")
+    def dumps(self, indent="  "):
+        result = "%sforall %s\n" % (indent, ", ".join(map(str, self.parameters)))
+        result += self.effect.dumps(indent + "  ")
+        return result
     def normalize(self):
         norm_effect = self.effect.normalize()
         if isinstance(norm_effect, ConjunctiveEffect):
@@ -159,6 +182,11 @@ class ConjunctiveEffect:
         print("%sand" % (indent))
         for eff in self.effects:
             eff.dump(indent + "  ")
+    def dumps(self, indent="  "):
+        result = "%sand\n" % (indent)
+        for eff in self.effects:
+            result += eff.dumps(indent + "  ")
+        return result
     def normalize(self):
         new_effects = []
         for effect in self.effects:
@@ -179,6 +207,8 @@ class SimpleEffect:
         self.effect = effect
     def dump(self, indent="  "):
         print("%s%s" % (indent, self.effect))
+    def dumps(self, indent="  "):
+        return "%s%s\n" % (indent, self.effect)
     def normalize(self):
         return self
     def extract_cost(self):
@@ -189,6 +219,8 @@ class CostEffect:
         self.effect = effect
     def dump(self, indent="  "):
         print("%s%s" % (indent, self.effect))
+    def dumps(self, indent="  "):
+        return "%s%s\n" % (indent, self.effect)
     def normalize(self):
         return self
     def extract_cost(self):

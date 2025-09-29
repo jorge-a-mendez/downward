@@ -11,6 +11,11 @@ class FunctionalExpression(object):
         print("%s%s" % (indent, self._dump()))
         for part in self.parts:
             part.dump(indent + "  ")
+    def dumps(self, indent="  "):
+        result = "%s%s\n" % (indent, self._dump())
+        for part in self.parts:
+            result += part.dumps(indent + "  ")
+        return result
     def _dump(self):
         return self.__class__.__name__
     def instantiate(self, var_mapping, init_facts):
@@ -47,6 +52,8 @@ class PrimitiveNumericExpression(FunctionalExpression):
         return "%s %s(%s)" % ("PNE", self.symbol, ", ".join(map(str, self.args)))
     def dump(self, indent="  "):
         print("%s%s" % (indent, self._dump()))
+    def dumps(self, indent="  "):
+        return "%s%s\n" % (indent, self._dump())
     def _dump(self):
         return str(self)
     def instantiate(self, var_mapping, init_assignments):
@@ -69,6 +76,11 @@ class FunctionAssignment:
         print("%s%s" % (indent, self._dump()))
         self.fluent.dump(indent + "  ")
         self.expression.dump(indent + "  ")
+    def dumps(self, indent="  "):
+        result = "%s%s\n" % (indent, self._dump())
+        result += self.fluent.dumps(indent + "  ")
+        result += self.expression.dumps(indent + "  ")
+        return result
     def _dump(self):
         return self.__class__.__name__
     def instantiate(self, var_mapping, init_facts):

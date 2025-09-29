@@ -25,6 +25,11 @@ class Condition:
         print("%s%s" % (indent, self._dump()))
         for part in self.parts:
             part.dump(indent + "  ")
+    def dumps(self, indent="  "):
+        result = "%s%s\n" % (indent, self._dump())
+        for part in self.parts:
+            result += part.dumps(indent + "  ")
+        return result
     def _dump(self):
         return self.__class__.__name__
     def _postorder_visit(self, method_name, *args):

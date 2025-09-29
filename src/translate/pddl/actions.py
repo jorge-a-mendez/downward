@@ -36,6 +36,21 @@ class Action:
         else:
             print("  None")
 
+    def dumps(self):
+        result = "%s(%s)\n" % (self.name, ", ".join(map(str, self.parameters)))
+        result += "Precondition:\n"
+        result += self.precondition.dumps()
+        result += "Effects:\n"
+        for eff in self.effects:
+            result += eff.dumps()
+        result += "Cost:\n"
+        if(self.cost):
+            result += self.cost.dumps()
+        else:
+            result += "  None\n"
+        return result
+
+
     def uniquify_variables(self):
         self.type_map = {par.name: par.type_name for par in self.parameters}
         self.precondition = self.precondition.uniquify_variables(self.type_map)
@@ -133,3 +148,14 @@ class PropositionalAction:
         for cond, fact in self.del_effects:
             print("DEL: %s -> %s" % (", ".join(map(str, cond)), fact))
         print("cost:", self.cost)
+
+    def dumps(self):
+        result = self.name + "\n"
+        for fact in self.precondition:
+            result += "PRE: %s\n" % fact
+        for cond, fact in self.add_effects:
+            result += "ADD: %s -> %s\n" % (", ".join(map(str, cond)), fact)
+        for cond, fact in self.del_effects:
+            result += "DEL: %s -> %s\n" % (", ".join(map(str, cond)), fact)
+        result += "cost: %s\n" % self.cost
+        return result
