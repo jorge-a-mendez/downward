@@ -20,6 +20,13 @@ class Axiom:
         print("Axiom %s(%s)" % (self.name, ", ".join(args)))
         self.condition.dump()
 
+    def dumps(self):
+        args = map(str, self.parameters[:self.num_external_parameters])
+        result = "Axiom %s(%s)\n" % (self.name, ", ".join(args))
+        result += self.condition.dumps()
+        return result
+    
+
     def uniquify_variables(self):
         self.type_map = {par.name: par.type_name for par in self.parameters}
         self.condition = self.condition.uniquify_variables(self.type_map)
@@ -61,6 +68,16 @@ class PropositionalAxiom:
         for fact in self.condition:
             print("PRE: %s" % fact)
         print("EFF: %s" % self.effect)
+
+    def dumps(self):
+        result = ""
+        if self.effect.negated:
+            result += "not "
+        result += self.name + "\n"
+        for fact in self.condition:
+            result += "PRE: %s\n" % fact
+        result += "EFF: %s\n" % self.effect
+        return result
 
     @property
     def key(self):
